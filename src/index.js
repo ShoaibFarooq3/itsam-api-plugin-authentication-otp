@@ -2,32 +2,32 @@ import pkg from "../package.json";
 import tokenMiddleware from "./util/tokenMiddleware.js";
 import getAccounts from "./util/accountServer.js";
 import Account from "./resolvers/Account.js";
-import Mutation from "./resolvers/Mutation.js";
-import Query from "./resolvers/Query.js";
-
+import Mutation from "./resolvers/Mutations.js";
 import importAsString from "@reactioncommerce/api-utils/importAsString.js";
-
 const mySchema = importAsString("./schema.graphql");
+import preStartup from "./preStartup.js";
 
-/**
- * @summary Registers the authentication plugin
- * @param {ReactionAPI} app The ReactionAPI instance
- * @returns {undefined}
- */
+const resolvers = {
+  // Account,
+  Mutation,
+};
+
+function myAuthenticationStartup(context) {
+  const { app, collections, rootUrl } = context;
+  const { users } = collections;
+  users.createIndex({ phone: 1 }, { unique: true });
+}
 export default async function register(app) {
-  const { accountsGraphQL, accountsServer } = await getAccounts(app);
-
-  let ResolverObj = accountsGraphQL.resolvers;
-  ResolverObj["Account"] = Account;
-  ResolverObj["Mutation"] = Mutation;
-  ResolverObj["Query"] = Query;
+  const { accountsGraphQL } = await getAccounts(app);
   await app.registerPlugin({
-    label: "Authentication-LoS",
-    name: "authentication",
+    label: "Authentication-OTP",
+    name: "authentication-otp",
     autoEnable: true,
     version: pkg.version,
     functionsByType: {
       graphQLContext: [({ req }) => accountsGraphQL.context({ req })],
+      preStartup: [preStartup],
+      startup: [myAuthenticationStartup],
     },
     collections: {
       users: {
@@ -37,7 +37,7 @@ export default async function register(app) {
     graphQL: {
       schemas: [mySchema],
       typeDefsObj: [accountsGraphQL.typeDefs],
-      resolvers: ResolverObj,
+      resolvers: resolvers,
     },
     expressMiddleware: [
       {

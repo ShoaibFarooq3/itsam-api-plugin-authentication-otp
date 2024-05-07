@@ -1,112 +1,64 @@
-enum loginType {
-  email
-  phoneNo
-  username
-}
-
-enum userType {
-  superAdmin
-  admin
-  user
-}
-
-extend type Account {
-  legacyUsername: String
-  type: loginType
-  userRole: userType
-  languageAccount: String
-  industry: String
-  company: String
-  position: String
-  addressAccount: String
-  cityAccount: String
-  stateAccount: String
-  countryAccount: String
-  zipcode: String
-  telephone1: String
-  telephone2: String
-  profileImage: String
-}
-
 extend type User {
-  userRole: userType
+  phone: String
+  phoneVerified: Boolean
+  firstName: String
+  lastName: String
 }
-
+extend type Account {
+  phone: String
+}
 extend input CreateUserInput {
-  username: String = "insecure"
-  legacyUsername: String
-  type: loginType
-  phoneVerified: Boolean = false
+  phone: String!
   firstName: String!
   lastName: String!
-  languageAccount: String!
-  industry: String!
-  company: String!
-  position: String!
-  addressAccount: String!
-  cityAccount: String!
-  stateAccount: String!
-  countryAccount: String!
-  zipcode: String!
-  telephone1: String!
-  telephone2: String!
-  profileImage: String
-  userRole: userType
+  otp: String
+  govId: [String]
+  proofOfAddress: [String]
+  UserRole: UserRoleValue
 }
-
-input CreateAdminInput {
-  email: String!
-  type: loginType!
-}
-
-input VerifyUserOtpInput {
-  userId: ID!
-  otp: Int!
+enum UserRoleValue {
+  admin
+  dispatcher
+  rider
 }
 
 type CreateUserResult {
-  type: loginType
+  id: ID
+  phone: String
+  firstName: String
+  lastName: String
+  otp: String
+  govId: [String]
+  proofOfAddress: [String]
+  UserRole: UserRoleValue
 }
 
-type newUserResult {
-  userId: ID
-  type: loginType
+type phone {
+  code: String
+  expiry: String
 }
-
-type resetPasswordResult {
-  userId: ID
+type dict {
+  code: String
+  expiry: String
+}
+type sendOtpResponse {
   success: Boolean
+  dict: dict
 }
 
-input LoginUserInput {
-  email: String
-  password: String!
-  username: String
-}
-
-input ResetpasswordInput {
-  loginTypeValue: String!
-}
-
-input resetPasswordAfterOtpVerifyInput {
-  otp: Int!
-  userId: ID!
-  password: String!
-}
-type resetUserNamePayload {
-  status: Boolean
-  mesasge: String
-}
 extend type Mutation {
-  createUserWithOtp(user: CreateUserInput!): newUserResult
-  addAdmin(user: CreateAdminInput!): newUserResult
-  verifyOTP(user: VerifyUserOtpInput!): Boolean
-  loginUser(user: LoginUserInput!): CreateUserResult
-  resetPasswordOtp(user: ResetpasswordInput!): resetPasswordResult
-  resetPasswordAfterOtpVerify(user: resetPasswordAfterOtpVerifyInput!): Boolean
-  resetUserName(Email: String!): resetUserNamePayload
+  checkUserExist(phone: String, email: String): Boolean
+  sendOTP(phone: String, email: String): Boolean
+  deleteUser(userId: String!): Boolean
+  createUserWithOtp(user: CreateUserInput!): CreateUserResult
+  verifyOTP(phone: String, otp: String): verifyOTPResponse
+  authenticateWithOTP(
+    serviceName: String!
+    params: AuthenticateParamsInput!
+  ): LoginResult
 }
 
-extend type Query {
-  adminAccounts: [Account]
+type verifyOTPResponse {
+  status: Boolean
+  response: String
 }

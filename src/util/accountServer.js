@@ -16,8 +16,10 @@ export default async (app) => {
   }
   const { MONGO_URL, STORE_URL, TOKEN_SECRET } = config;
   const { context } = app;
+
   const client = await mongoConnectWithRetry(MONGO_URL);
   const db = client.db();
+
   const accountsMongo = new Mongo(db, {
     convertUserIdToMongoObjectId: false,
     convertSessionIdToMongoObjectId: false,
@@ -27,39 +29,8 @@ export default async (app) => {
   const password = new AccountsPassword({
     validateNewUser: async (user) => {
       // You can apply some custom validation
-      const { legacyUsername, username, email } = user;
       let userObj = {};
-      if (!email || email == "") {
-        if (username === "insecure") {
-          if (!legacyUsername || legacyUsername == "") {
-            throw new Error(
-              "legacyUsername is required with insecure username mode"
-            );
-          } else {
-            const usersCollection = accountsMongo.db.collection("users");
-
-            const UsernameExist = await usersCollection.findOne({
-              username: legacyUsername
-            });
-
-            const UserEmailExist = await usersCollection.findOne({
-              "email.address": email
-            });
-
-            console.log("user email already exists ", UserEmailExist);
-            if (UsernameExist) {
-              throw new Error("Username already exists");
-            }
-            if (UserEmailExist) {
-              throw new Error("email already exists");
-            }
-          }
-        }
-      }
-      userObj = {
-        ...user,
-        username: username === "insecure" ? user.legacyUsername : user.username
-      };
+      userObj = { ...user, phone: user.phone, phoneVerified: false };
 
       // We specify all the fields that can be inserted in the database
       return userObj;
@@ -72,10 +43,10 @@ export default async (app) => {
       tokenSecret: TOKEN_SECRET,
       tokenConfigs: {
         accessToken: {
-          expiresIn: "10d"
+          expiresIn: "30d"
         },
         refreshToken: {
-          expiresIn: "10d"
+          expiresIn: "90d"
         }
       },
       db: accountsMongo,

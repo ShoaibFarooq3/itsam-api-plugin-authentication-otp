@@ -1,12 +1,13 @@
 import _ from "lodash";
 import ReactionError from "@reactioncommerce/reaction-error";
+import config from "../config.js";
 import generateOTPForResetPassword from "./generateOTPForResetPassword.js";
 
 // const { REACTION_IDENTITY_PUBLIC_VERIFY_EMAIL_URL } = config;
 
 /**
- * @method sendOTPEmail
- * @summary Send an email with a otp for signup and reset Password.
+ * @method sendVerificationEmail
+ * @summary Send an email with a link the user can use verify their email address.
  * @param {Object} context Startup context
  * @param {Object} input Input options
  * @param {String} input.userId - The id of the user to send email to.
@@ -14,32 +15,31 @@ import generateOTPForResetPassword from "./generateOTPForResetPassword.js";
  * @returns {Job} - returns a sendEmail Job instance
  */
 
-export default async function sendResetPasswordOTP(
-  context,
-  email,
-  { bodyTemplate = "accounts/newEmail", userId }
-) {
-  //function to get otp and expiration time
+export default async function sendOTPToVerifyEmailOTP(context, email) {
+  // console.log("User ID", userId){ bodyTemplate = "accounts/newEmail", userId }
   const { otp, expirationTime } = await generateOTPForResetPassword();
+  // console.log(`Your OTP is: ${otp}`);
+  // console.log(`Expires at: ${new Date(expirationTime).toLocaleTimeString()}`);
 
   const {
     collections: { Accounts, Shops, users },
   } = context;
-
-  //updating the user with expiration date and otp
   const updateAccountResult = await users.updateOne(
+    // { _id: userId },
     { "emails.address": email },
 
     { $set: { otp: otp, expirationTime: expirationTime } } // $set updates the fields with the new values
   );
+  // console.log("otp and expiry updated: ", updateAccountResult)
 
   const UserData = await users.findOne({ "emails.address": email });
   if (!UserData) {
     // The user document does not exist, throw an error or handle it as needed
     throw new ReactionError("not-found", "Account not found");
   }
-
+  // console.log("User Response :- ", UserData._id)
   const account = await Accounts.findOne({ _id: UserData._id });
+  // console.log("Account Resonse :-", account)
   if (!account) throw new ReactionError("not-found", "Account not found");
 
   // Account emails are always sent from the primary shop email and using primary shop
@@ -73,7 +73,7 @@ export default async function sendResetPasswordOTP(
   return context.mutations.sendEmail(context, {
     data: dataForEmail,
     fromShop: shop,
-    templateName: bodyTemplate,
+    templateName: "accounts/newEmail",
     language,
     to: email,
   });
