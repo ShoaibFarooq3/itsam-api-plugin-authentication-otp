@@ -12,11 +12,11 @@ const resolvers = {
   Mutation,
 };
 
-function myAuthenticationStartup(context) {
-  const { app, collections, rootUrl } = context;
-  const { users } = collections;
-  users.createIndex({ phone: 1 }, { unique: true });
-}
+// function myAuthenticationStartup(context) {
+//   const { app, collections, rootUrl } = context;
+//   const { users } = collections;
+//   users.createIndex({ phone: 1 }, { unique: true });
+// }
 export default async function register(app) {
   const { accountsGraphQL } = await getAccounts(app);
   await app.registerPlugin({
@@ -27,13 +27,9 @@ export default async function register(app) {
     functionsByType: {
       graphQLContext: [({ req }) => accountsGraphQL.context({ req })],
       preStartup: [preStartup],
-      startup: [myAuthenticationStartup],
+      // startup: [myAuthenticationStartup],
     },
-    collections: {
-      users: {
-        name: "users",
-      },
-    },
+    
     graphQL: {
       schemas: [mySchema],
       typeDefsObj: [accountsGraphQL.typeDefs],

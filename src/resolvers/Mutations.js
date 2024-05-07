@@ -10,27 +10,27 @@ import { canCreateUser } from "../util/checkUserRole.js";
 import { getGroupData } from "../util/getGroupData.js";
 import sendOTPToVerifyEmailOTP from "../util/sendOTPToVerifyEmailOTP.js";
 export default {
-  async sendOTP(parent, args, context, info) {
-    const { collections } = context;
-    const { users } = collections;
-    let msisdn;
-    if (args.phone && args.phone.length > 10 && args.phone[0] == "+") {
-      msisdn = args.phone;
-    } else if (args.email) {
-      const userExist = await users.findOne({
-        "emails.0.address": args?.email,
-      });
-      if (!userExist) {
-        throw new Error("User does not exist");
-      }
-      msisdn = userExist.phone;
-    } else {
-      throw Error("Invalid phone number");
-    }
+  // async sendOTP(parent, args, context, info) {
+  //   const { collections } = context;
+  //   const { users } = collections;
+  //   let msisdn;
+  //   if (args.phone && args.phone.length > 10 && args.phone[0] == "+") {
+  //     msisdn = args.phone;
+  //   } else if (args.email) {
+  //     const userExist = await users.findOne({
+  //       "emails.0.address": args?.email,
+  //     });
+  //     if (!userExist) {
+  //       throw new Error("User does not exist");
+  //     }
+  //     msisdn = userExist.phone;
+  //   } else {
+  //     throw Error("Invalid phone number");
+  //   }
 
-    const res = await generateOtp(msisdn);
-    return res;
-  },
+  //   const res = await generateOtp(msisdn);
+  //   return res;
+  // },
   async checkUserExist(parent, args, context, info) {
     const { collections } = context;
     const { users } = collections;
