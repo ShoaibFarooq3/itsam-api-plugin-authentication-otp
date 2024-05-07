@@ -1,11 +1,11 @@
 
-import Twilio from "twilio";
+// import Twilio from "twilio";
 
 var dict = {};
 
-var accountSid = process.env.TWILIO_ACCOUNT_SID;
-var authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = new Twilio("ACa6213af064b", "");
+// var accountSid = process.env.TWILIO_ACCOUNT_SID;
+// var authToken = process.env.TWILIO_AUTH_TOKEN;
+// const client = new Twilio("ACa6213af064b", "");
 
 export function generateOtp(number) {
   return new Promise((resolve, reject) => {
@@ -35,70 +35,70 @@ export function generateOtp(number) {
   })
 
 }
-function sendOtp(number, body) {
-  return new Promise((resolve, reject) => {
-    try {
+// function sendOtp(number, body) {
+//   return new Promise((resolve, reject) => {
+//     try {
 
-      //Sending Reset OTP to user number
-      client.messages.create({
-        body: body,
-        to: number,
-        from: process.env.TWILIO_PHONE_NO
+//       //Sending Reset OTP to user number
+//       client.messages.create({
+//         body: body,
+//         to: number,
+//         from: process.env.TWILIO_PHONE_NO
 
-      }).then((data) => {
-        resolve(true)
-      }).catch((err) => {
-        console.log("testing")
-        console.log(err)
-        reject(err)
+//       }).then((data) => {
+//         resolve(true)
+//       }).catch((err) => {
+//         console.log("testing")
+//         console.log(err)
+//         reject(err)
 
-      })
-
-
-    }
-    catch (err) {
-      console.log(err)
-      reject(err)
-    }
+//       })
 
 
-  });
-}
-export async function verifyOTP(number, otp, context) {
+//     }
+//     catch (err) {
+//       console.log(err)
+//       reject(err)
+//     }
 
-  if (dict[number] == undefined || dict[number] == {}) {
-    return {
-      status: false,
-      response: "OTP code invalid"
-    }
-  }
-  const isValid = dict[number]["expiry"] - new Date().getTime() > 0;
-  if (!isValid) {
-    delete dict[number];
 
-    return {
-      status: false,
-      response: "OTP code expired"
-    }
-  }
-  const res = dict[number]["code"] == otp;
-  if (res == true) {
-    delete dict[number];
-    const { collections } = context;
-    const { users } = collections;
+//   });
+// }
+// export async function verifyOTP(number, otp, context) {
 
-    const userObj = await users.updateOne({ "phone": number }, { $set: { "phoneVerified": "true" } })
+//   if (dict[number] == undefined || dict[number] == {}) {
+//     return {
+//       status: false,
+//       response: "OTP code invalid"
+//     }
+//   }
+//   const isValid = dict[number]["expiry"] - new Date().getTime() > 0;
+//   if (!isValid) {
+//     delete dict[number];
 
-    return {
-      status: true,
-      response: "Verified successfully"
-    }
-  } else {
-    return {
-      status: false,
-      response: "Invalid code entered"
-    }
+//     return {
+//       status: false,
+//       response: "OTP code expired"
+//     }
+//   }
+//   const res = dict[number]["code"] == otp;
+//   if (res == true) {
+//     delete dict[number];
+//     const { collections } = context;
+//     const { users } = collections;
 
-  }
+//     const userObj = await users.updateOne({ "phone": number }, { $set: { "phoneVerified": "true" } })
 
-}
+//     return {
+//       status: true,
+//       response: "Verified successfully"
+//     }
+//   } else {
+//     return {
+//       status: false,
+//       response: "Invalid code entered"
+//     }
+
+//   }
+
+// }

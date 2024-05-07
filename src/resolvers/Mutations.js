@@ -1,5 +1,5 @@
 import { generateOtp } from "../util/otp.js";
-import { verifyOTP } from "../util/otp.js";
+// import { verifyOTP } from "../util/otp.js";
 import ReactionError from "@reactioncommerce/reaction-error";
 import pkg from "mongodb";
 import ObjectID from "mongodb";
@@ -47,9 +47,9 @@ export default {
       return false;
     }
   },
-  verifyOTP(parent, args, context, info) {
-    return verifyOTP(args.phone, args.otp, context);
-  },
+  // verifyOTP(parent, args, context, info) {
+  //   return verifyOTP(args.phone, args.otp, context);
+  // },
   resetPassword: async (_, { token, newPassword }, { injector, infos }) => {
     return injector
       .get(password_1.AccountsPassword)
@@ -475,23 +475,23 @@ export default {
       return authenticated;
     }
   },
-  authenticateWithOTP: async (_, args, ctx) => {
-    const { serviceName, params } = args;
-    const { injector, infos, collections } = ctx;
-    const { users } = collections;
-    const userExist = await users.findOne({
-      "emails.0.address": params?.user?.email,
-    });
-    const resOTP = await verifyOTP(userExist.phone, params.code, ctx);
-    if (!resOTP?.status) {
-      return null;
-    } else {
-      const authenticated = await injector
-        .get(server_1.AccountsServer)
-        .loginWithService(serviceName, params, infos);
-      return authenticated;
-    }
-  },
+  // authenticateWithOTP: async (_, args, ctx) => {
+  //   const { serviceName, params } = args;
+  //   const { injector, infos, collections } = ctx;
+  //   const { users } = collections;
+  //   const userExist = await users.findOne({
+  //     "emails.0.address": params?.user?.email,
+  //   });
+  //   const resOTP = await verifyOTP(userExist.phone, params.code, ctx);
+  //   if (!resOTP?.status) {
+  //     return null;
+  //   } else {
+  //     const authenticated = await injector
+  //       .get(server_1.AccountsServer)
+  //       .loginWithService(serviceName, params, infos);
+  //     return authenticated;
+  //   }
+  // },
   async deleteUser(parent, args, context, info) {
     if (context.user === undefined || context.user === null) {
       throw new Error("Unauthorized access. Please login first");
